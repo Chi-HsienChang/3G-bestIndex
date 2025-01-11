@@ -334,15 +334,24 @@ void DSMGA2::oneRun (bool output) {
             //     cout << endl;        
             // }
 
+            bool copy_population_active = true;
+
             int i_count = 0;
             for (int G = 0; G < 3; ++G) {
                 nCurrent = groups[G].size();
-                
-                for (int i = 0; i < nCurrent; ++i) {
-                    // population[i] = population[groups[G][i]]; //原本的寫法
-                    population[i] = copy_population[groups[G][i]]; //修改後的寫法
-                    
+
+
+                if (copy_population_active){
+                    for (int i = 0; i < nCurrent; ++i) {
+                        population[i] = copy_population[groups[G][i]]; //修改後的寫法
+                    }
+                }else{
+                     for (int i = 0; i < nCurrent; ++i) {
+                        population[i] = population[groups[G][i]]; //原本的寫法
+                    }                   
                 }
+                
+
 
                 // cout << "G = " << G << " nCurrent = " << nCurrent << endl;
                 // for (int i = 0; i < nCurrent; ++i) {
