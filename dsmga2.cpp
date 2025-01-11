@@ -141,9 +141,6 @@ void DSMGA2::oneRun (bool output) {
         if (CACHE)
             Chromosome::cache.clear();
 
-        // cout << "generation: " << generation << endl;
-        // ratio_1[generation].resize(ell);
-
         for (int i = 0; i < ell; ++i) {
             double count1 = 0;
             for (int j = 0; j < nCurrent; ++j) {
@@ -152,15 +149,6 @@ void DSMGA2::oneRun (bool output) {
             }
             ratio_1[generation][i] = count1 / nCurrent;
         }
-
-
-
-        // 輸出 ratio_1 並限制為小數一位
-        // cout << "ratio_1: ";
-        // for (int i = 0; i < ell; ++i) {
-        //     cout << fixed << setprecision(1) << ratio_1[generation][i] << " ";
-        // }
-        // cout << endl; // 確保輸出後換行
 
 
         if (generation == 1)
@@ -186,40 +174,26 @@ void DSMGA2::oneRun (bool output) {
 
             if (change01_12 >= ell*0.01) {
                 cluster = true;
-                // cout << "###################################cluster###################################" << endl;
             } else {
                 cluster = false;
             }
                 
         }
 
-
-
-
-        // cout << "bestIndex: " << bestIndex << endl;
-        mixing(); 
-
-
-        
-        
-
-        
+        mixing();   
 
     }else{
-        // cluster = false;
+        
         if (!cluster)
         {
             mixing();  
         }{
             
-
-
-            
-            
-
-            
-
             cout << "Generation: " << generation << endl;
+            for (int i = 0; i < nCurrent; ++i) {
+                copy_population[i] = population[i];
+            }
+
             // cout << "population before cluster:" << endl;
             // for (int i = 0; i < nCurrent; ++i) {
             //     cout << i << "= "; 
@@ -228,10 +202,6 @@ void DSMGA2::oneRun (bool output) {
             //     }
             //     cout << endl;
             // }
-
-            for (int i = 0; i < nCurrent; ++i) {
-                copy_population[i] = population[i];
-            }
 
             // cout << "copy_population before cluster:" << endl;
             // for (int i = 0; i < nCurrent; ++i) {
@@ -242,13 +212,6 @@ void DSMGA2::oneRun (bool output) {
             //     cout << endl;
             // }
         
-
-            
-
-
-
-
-
             int original_nCurrent = nCurrent;
 
             std::vector<int> group1, group2, group3;
@@ -270,7 +233,6 @@ void DSMGA2::oneRun (bool output) {
                 if (hamm > maxdistance){
                     seeds[1] = i;
                     maxdistance = hamm;
-                    // cout << "maxdistance: " << maxdistance << endl;
                 }
             }
 
@@ -285,12 +247,6 @@ void DSMGA2::oneRun (bool output) {
                     if (population[bestIndex].getVal(j) != population[i].getVal(j))
                         ++hamm2;
                 }
-
-                // cout <<"maxdistance " << maxdistance << endl;
-                // cout << "hamm2: " << hamm2 << endl;
-                // hamm2 = abs(hamm2 - (maxdistance/2));
-
-                // cout << "hamm2_sub: " << hamm2 << endl;
 
                 if (abs(hamm2 - (maxdistance/2)) < mindistance){
                     seeds[2] = i;
@@ -336,7 +292,7 @@ void DSMGA2::oneRun (bool output) {
                 groups[bestGroup].push_back(i);
             }
             
-            cout << "groups[0].size: "<< groups[0].size() <<", groups[1].size: "<< groups[1].size() <<", groups[2].size: "<< groups[2].size() << endl;
+            // cout << "groups[0].size: "<< groups[0].size() <<", groups[1].size: "<< groups[1].size() <<", groups[2].size: "<< groups[2].size() << endl;
             // for (int idx : groups[0]) {
             //     cout << idx << " ";
             // }
@@ -377,22 +333,15 @@ void DSMGA2::oneRun (bool output) {
             //     }
             //     cout << endl;        
             // }
-            cout << "---------------" << endl;
 
             int i_count = 0;
             for (int G = 0; G < 3; ++G) {
                 nCurrent = groups[G].size();
-
-                // if (nCurrent % 2 == 1){
-                //     // Add a chromosome to this group
-                //     population[nCurrent] = population[groups[G][0]];
-                //     groups[G].push_back(nCurrent);
-                //     nCurrent++;
-                // }
                 
                 for (int i = 0; i < nCurrent; ++i) {
-                    // population[i] = copy_population[groups[G][i]];
-                    population[i] = population[groups[G][i]];
+                    // population[i] = population[groups[G][i]]; //原本的寫法
+                    population[i] = copy_population[groups[G][i]]; //修改後的寫法
+                    
                 }
 
                 // cout << "G = " << G << " nCurrent = " << nCurrent << endl;
@@ -406,9 +355,6 @@ void DSMGA2::oneRun (bool output) {
                 if (CACHE)
                     Chromosome::cache.clear();
 
-
-                cout << "mixing G = " << G << endl;
-
                 mixing();
 
             
@@ -416,6 +362,7 @@ void DSMGA2::oneRun (bool output) {
                     if (i+i_count >= original_nCurrent) break;
                     temp_population[i+i_count] = population[i];
                 }
+
                 i_count += nCurrent;
 
                 if (G == 0) {
@@ -433,14 +380,11 @@ void DSMGA2::oneRun (bool output) {
             for (int i = 0; i < nCurrent; ++i) {
                 population[i] = temp_population[i];
             }
-
-            
-             
         }
     }
 
 
-    /////////////////////////
+    // mixing 執行結束
     double max = -INF;
     stFitness.reset ();
 
